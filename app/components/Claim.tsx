@@ -22,17 +22,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const Claim = ({
-  claimTokens,
-  claimWinnerPool,
   isTradingEnabled,
-  getStageSpecs,
-  userAddress,
+  winners,
+  currentStage,
 }: {
-  claimTokens: number;
-  claimWinnerPool: number;
   isTradingEnabled: boolean;
-  getStageSpecs: any;
-  userAddress: string | undefined;
+  winners: string[];
+  currentStage: number;
 }) => {
   const [stageSpecs, setStageSpecs] = useState(null);
   const [stageNumber, setStageNumber] = useState(1);
@@ -41,14 +37,6 @@ const Claim = ({
     isPending,
     isSuccess,
   } = useSendTransaction();
-
-  useEffect(() => {
-    const fetchStageSpecs = async () => {
-      const specs = await getStageSpecs();
-      setStageSpecs(specs);
-    };
-    fetchStageSpecs();
-  }, [getStageSpecs]);
 
   const handleClaimTokens = async () => {
     try {
@@ -179,6 +167,26 @@ const Claim = ({
             </div>
           </div>
         )} */}
+
+        <div className="winnerStats bg-yellow-400 bg-opacity-25 text-gray-200 p-5 rounded-lg mt-5">
+          <h3 className="text-center text-2xl mb-4">Winners</h3>
+          {Array.from({ length: stageNumber }).map((_, index) => (
+            <div
+              key={index}
+              className={`winnerItem flex justify-between border-b border-gray-600 pb-2 ${
+                winners[index].startsWith("0x000")
+                  ? "bg-red-500"
+                  : "bg-green-500"
+              }`}
+            >
+              <p className="flex-1 text-left">Stage {index + 1}</p>
+              <p className="flex-1 text-right">{winners[index]}</p>
+            </div>
+          ))}
+          {winners.every((winner) => winner.startsWith("0x000")) && (
+            <p className="text-center">No winners yet</p>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import bnb from "@/public/bnb.png";
 import usdt from "../../public/usdt(bep-20).png";
 import wclogo from "@/public/wclogo.png";
@@ -13,17 +13,33 @@ import {
 } from "thirdweb/react";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { contract } from "../lib/thirdweb";
+import { contract, presaleContractEthers } from "../lib/thirdweb";
 import { prepareContractCall, toWei } from "thirdweb";
 import { ethers } from "ethers";
 import { presale_abi, presale_address } from "../contract/data";
+import { Stage } from "../lib/types";
 
-const Presale = ({ referral }: { referral: string | undefined }) => {
+const Presale = ({
+  referral,
+  stageNumber,
+  stageDetails,
+}: {
+  referral: string | undefined;
+  stageNumber: number;
+  stageDetails: Stage;
+}) => {
   const [selectedPaymentMode, setSelectedPaymentMode] = useState<number>(0); // 0 => BNB 1 => USDT
   const [referralLink, setReferralLink] = useState<string | undefined>(
     undefined
   );
   const [wicAmount, setWicAmount] = useState<string>("");
+  const [userWIDTokens, setUserWIDTokens] = useState<
+    | {
+        purchasedTokens: number;
+        referralTokens: number;
+      }
+    | undefined
+  >(undefined);
   const activeAccount = useActiveAccount();
   const { toast } = useToast();
   const {
@@ -31,6 +47,29 @@ const Presale = ({ referral }: { referral: string | undefined }) => {
     isPending,
     isSuccess,
   } = useSendTransaction();
+  const {
+    stageSupply,
+    supplySold,
+    tokenPrice,
+    minParticipationUSDT,
+    winningPool,
+    winner,
+  } = stageDetails;
+
+  useEffect(() => {
+    const fetchUserPurchaedWID = async () => {
+      const { address } = activeAccount!;
+      const amount = await presaleContractEthers.purchasedTokens(address);
+      const referralTokens = await presaleContractEthers.refferalTokens(
+        address
+      );
+      setUserWIDTokens({
+        purchasedTokens: Number(amount),
+        referralTokens: Number(referralTokens),
+      });
+    };
+    if (activeAccount) fetchUserPurchaedWID();
+  }, [activeAccount?.address]);
 
   const buyToken = async () => {
     if (!activeAccount) {
@@ -41,24 +80,11 @@ const Presale = ({ referral }: { referral: string | undefined }) => {
     } else {
       try {
         const wicAmountDec = toWei(wicAmount);
-        // const { data, isLoading } = useReadContract({
-        //   contract,
-        //   method:
-        //     "function calculateTotalTokensCost(uint256 token_amount, uint8 mode) returns (uint256)",
-        //   params: [wicAmountDec, 0],
-        // })
-        const provider = new ethers.JsonRpcProvider(
-          process.env.NEXT_PUBLIC_RPC_URL!
-        );
-        const presaleContract = new ethers.Contract(
-          presale_address,
-          presale_abi,
-          provider
-        );
-        const totalWICCost = await presaleContract.calculateTotalTokensCost(
-          wicAmountDec,
-          selectedPaymentMode
-        );
+        const totalWICCost =
+          await presaleContractEthers.calculateTotalTokensCost(
+            wicAmountDec,
+            selectedPaymentMode
+          );
         console.log(totalWICCost);
         const transaction = prepareContractCall({
           contract,
@@ -74,11 +100,6 @@ const Presale = ({ referral }: { referral: string | undefined }) => {
           value: selectedPaymentMode !== 0 ? 0 : totalWICCost,
         });
         sendTransaction(transaction);
-        toast({
-          title: "Transaction Processed Successfully.",
-          description: "Please wait for the confirmation.",
-          variant: "destructive",
-        });
       } catch (error) {
         toast({
           title: "Error",
@@ -100,12 +121,16 @@ const Presale = ({ referral }: { referral: string | undefined }) => {
           </h3>
           <div className="progress my-2"></div>
           <p className="text-xl text-pink-500 font-semibold">
-            🔥 Listings Price: '---' 🔥
+            🔥 Listings Price: <span className="font-bold">{tokenPrice}</span>{" "}
+            🔥
           </p>
         </div>
         <div className="flex space-x-2 items-center justify-center my-5">
           <hr className="border-t border-white w-1/5" />
-          <h2 className="text-white text-lg font-bold">Your Purchased $WIC = </h2>
+          <h2 className="text-white text-lg font-bold">
+            Your Purchased $WID ={" "}
+            {userWIDTokens ? userWIDTokens.purchasedTokens : "---"}
+          </h2>
           <hr className="border-t border-white w-1/5" />
         </div>
         <ul className="flex justify-center space-x-2 mb-5">
@@ -115,7 +140,11 @@ const Presale = ({ referral }: { referral: string | undefined }) => {
               className="nav-item bg-purple-900 rounded-md shadow-lg"
             >
               <button
-                className="nav-link flex items-center space-x-2 p-2 text-white"
+                className={`nav-link flex items-center space-x-2 p-2 text-white ${
+                  selectedPaymentMode === index
+                    ? "bg-purple-700"
+                    : "hover:bg-purple-800"
+                }`}
                 onClick={() => setSelectedPaymentMode(index)}
               >
                 <Image
@@ -140,9 +169,9 @@ const Presale = ({ referral }: { referral: string | undefined }) => {
                     setWicAmount(e.target.value);
                   }}
                   min={1}
-                  type="text"
+                  type="number"
                   className="w-full py-3 px-2 outline-none rounded-l"
-                  placeholder="$WIC Amount to purchase"
+                  placeholder="$WID Amount to purchase"
                 />
                 <button className="flex items-center text-white rounded-r border-l bg-gray-300">
                   <Image
@@ -154,26 +183,6 @@ const Presale = ({ referral }: { referral: string | undefined }) => {
                 </button>
               </div>
             </div>
-            {/* <div className="space-y-1 mt-2">
-              <label htmlFor="" className="text-white text-sm">
-                {selectedToken} To Pay
-              </label>
-              <div className="flex">
-                <input
-                  type="text"
-                  className="w-full py-3 px-2 outline-none rounded-l"
-                  placeholder="0.00"
-                />
-                <button className="flex items-center text-white rounded-r border-l bg-gray-300">
-                  <Image
-                    src={selectedToken === "BNB" ? bnb : usdt}
-                    alt={`${selectedToken} Logo`}
-                    width={50}
-                    height={40}
-                  />
-                </button>
-              </div>
-            </div> */}
             <div className="text-center my-5">
               <button
                 className="gold-button px-6 py-3 rounded-lg bg-gradient-to-r from-gold-light to-gold-dark text-white font-bold shadow-lg hover:from-gold-dark hover:to-gold-light transform hover:scale-105 transition-transform duration-300"
@@ -188,19 +197,21 @@ const Presale = ({ referral }: { referral: string | undefined }) => {
         <div className="presaleStats bg-yellow-400 bg-opacity-25 text-gray-200 p-5 rounded-lg">
           <div className="statTop flex justify-between border-b border-gray-600 pb-2">
             <p>Your Referral Rewards</p>
-            <p>0.00 $WIC</p>
+            <p>{userWIDTokens ? userWIDTokens.referralTokens : "---"} $WID</p>
           </div>
           <div className="statBottom flex justify-between">
             <p>Stage</p>
-            <p>1</p>
+            <p>{Number(stageNumber)}</p>
           </div>
           <div className="statBottom flex justify-between">
             <p>Token Sold</p>
-            <p>1231.02 / 1234568.4 WIC</p>
+            <p>
+              {supplySold} / {stageSupply} $WID
+            </p>
           </div>
           <div className="statBottom flex justify-between">
-            <p>Remaining Token</p>
-            <p>16765410.98 WIC</p>
+            <p>Min Participation For Winner Pool</p>
+            <p>{minParticipationUSDT} $</p>
           </div>
         </div>
         <div className="text-center mt-5">

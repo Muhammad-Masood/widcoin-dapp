@@ -2,6 +2,7 @@ import { createThirdwebClient, getContract } from "thirdweb";
 import { bsc, bscTestnet } from "thirdweb/chains";
 import { presale_abi, presale_address } from "../contract/data";
 import { createWallet, inAppWallet } from "thirdweb/wallets";
+import { ethers } from "ethers";
 
 const client = createThirdwebClient({
   clientId: process.env.NEXT_PUBLIC_TW_CLIENT_KEY!,
@@ -30,4 +31,14 @@ const wallets = [
   createWallet("me.rainbow"),
 ];
 
-export { client, /**serverThirdweb ,**/ contract, wallets };
+const provider = new ethers.JsonRpcProvider(
+  process.env.NEXT_PUBLIC_RPC_URL!
+);
+
+const presaleContractEthers = new ethers.Contract(
+  presale_address,
+  presale_abi,
+  provider
+);
+
+export { client, /**serverThirdweb ,**/ contract, wallets, presaleContractEthers };
