@@ -9,16 +9,18 @@ const page = async () => {
     Array.from({ length: 10 }, async (_, index) => {
       const stageDetails = await presaleContractEthers.getStageSpecs(index + 1);
       console.log(stageDetails);
-      return stageDetails.winner;
+      return {
+        winner: stageDetails.winner,
+        winningPool: Number(stageDetails.winningPool) / 1e8,
+      };
     })
   );
-  const currentStage = await presaleContractEthers.currentStage();
+  const currentStage = Number(await presaleContractEthers.currentStage());
 
-  console.log(winnersTillCurrentStage, isTradingEnabled);
   return (
     <div className="flex items-center justify-center">
       <Claim
-        isTradingEnabled
+        isTradingEnabled={isTradingEnabled}
         winners={winnersTillCurrentStage}
         currentStage={currentStage}
       />

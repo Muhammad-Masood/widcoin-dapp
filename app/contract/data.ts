@@ -1,33 +1,10 @@
-const presale_address: string = "0xdC43D16A226Ed36213bAf0539D23Dd4Ab2562a19";
+const presale_address: string = "0x8B742FF6f280E1dCdFC3d4C038232ab697bb4893";
 const presale_abi: any = [
   {
     inputs: [],
     name: "acceptOwnership",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
-        internalType: "enum PaymentMethod",
-        name: "mode",
-        type: "uint8",
-      },
-      {
-        internalType: "address",
-        name: "refferal",
-        type: "address",
-      },
-    ],
-    name: "buyToken",
-    outputs: [],
-    stateMutability: "payable",
     type: "function",
   },
   {
@@ -85,6 +62,11 @@ const presale_abi: any = [
   },
   {
     inputs: [],
+    name: "PurchaseAmountShouldNotBeGreaterThanStageSupply",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ReentrancyGuardReentrantCall",
     type: "error",
   },
@@ -102,6 +84,61 @@ const presale_abi: any = [
     inputs: [],
     name: "ZeroAddress",
     type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "startTimestamp",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "endTimestamp",
+        type: "uint256",
+      },
+    ],
+    name: "AirdropOpened",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "BurnedWIDTokens",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "enum PaymentMethod",
+        name: "mode",
+        type: "uint8",
+      },
+      {
+        internalType: "address",
+        name: "refferal",
+        type: "address",
+      },
+    ],
+    name: "buyToken",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
   },
   {
     anonymous: false,
@@ -160,6 +197,26 @@ const presale_abi: any = [
     ],
     name: "CoordinatorSet",
     type: "event",
+  },
+  {
+    inputs: [],
+    name: "EmergencyPausePresale",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "endTime",
+        type: "uint256",
+      },
+    ],
+    name: "enableAirdrop",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [],
@@ -355,6 +412,56 @@ const presale_abi: any = [
     inputs: [
       {
         internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "enum PaymentMethod",
+        name: "mode",
+        type: "uint8",
+      },
+    ],
+    name: "withdrawAdminFunds",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "airdropEndTime",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "buyer",
+        type: "address",
+      },
+    ],
+    name: "buyerToIsAlreadyEligible",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "hasMarkedEligible",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
         name: "token_amount",
         type: "uint256",
       },
@@ -482,6 +589,38 @@ const presale_abi: any = [
         internalType: "struct Stage",
         name: "",
         type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "hasClaimedPresaleTokens",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "isAirdropOpen",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -653,8 +792,20 @@ const presale_abi: any = [
     stateMutability: "view",
     type: "function",
   },
+  {
+    inputs: [],
+    name: "winnerIndex",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
 ];
-
 const widcoin_address: string = "0x1F4D71254a9175c13c6e8ff441f42D4aE42487De";
 const erc20_abi: any = [
   { inputs: [], stateMutability: "nonpayable", type: "constructor" },
@@ -814,4 +965,12 @@ const erc20_abi: any = [
   },
 ];
 
-export { presale_address, presale_abi, widcoin_address, erc20_abi };
+const usdt_address: string = "0x3Bbf78eB227f243e9e308476fF7CA33eFcD015dc";
+
+export {
+  presale_address,
+  presale_abi,
+  widcoin_address,
+  erc20_abi,
+  usdt_address,
+};

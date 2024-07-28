@@ -1,6 +1,12 @@
 import { createThirdwebClient, getContract } from "thirdweb";
 import { bsc, bscTestnet } from "thirdweb/chains";
-import { presale_abi, presale_address } from "../contract/data";
+import {
+  erc20_abi,
+  presale_abi,
+  presale_address,
+  usdt_address,
+  widcoin_address,
+} from "../contract/data";
 import { createWallet, inAppWallet } from "thirdweb/wallets";
 import { ethers } from "ethers";
 
@@ -24,6 +30,23 @@ const contract = getContract({
   abi: presale_abi,
 });
 
+const tokenContract = getContract({
+  client,
+  // the chain the contract is deployed on
+  chain: bscTestnet,
+  // the contract's address
+  address: widcoin_address,
+  // OPTIONAL: the contract's abi
+  abi: erc20_abi,
+});
+
+const usdtContract = getContract({
+  client,
+  chain: bscTestnet,
+  address: usdt_address,
+  abi: erc20_abi,
+});
+
 const wallets = [
   inAppWallet(),
   createWallet("io.metamask"),
@@ -31,9 +54,7 @@ const wallets = [
   createWallet("me.rainbow"),
 ];
 
-const provider = new ethers.JsonRpcProvider(
-  process.env.NEXT_PUBLIC_RPC_URL!
-);
+const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL!);
 
 const presaleContractEthers = new ethers.Contract(
   presale_address,
@@ -41,4 +62,18 @@ const presaleContractEthers = new ethers.Contract(
   provider
 );
 
-export { client, /**serverThirdweb ,**/ contract, wallets, presaleContractEthers };
+const usdtContractEthers = new ethers.Contract(
+  usdt_address,
+  erc20_abi,
+  provider
+);
+
+export {
+  client,
+  /**serverThirdweb ,**/ contract,
+  wallets,
+  presaleContractEthers,
+  tokenContract,
+  usdtContract,
+  usdtContractEthers
+};
