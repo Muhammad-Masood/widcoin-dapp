@@ -1,4 +1,4 @@
-const presale_address: string = "0x8B742FF6f280E1dCdFC3d4C038232ab697bb4893";
+const presale_address: string = "0x833f590b398F6D00eFb79Db4B4c53f5E09A0A918";
 const presale_abi: any = [
   {
     inputs: [],
@@ -199,13 +199,6 @@ const presale_abi: any = [
     type: "event",
   },
   {
-    inputs: [],
-    name: "EmergencyPausePresale",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "uint256",
@@ -221,6 +214,13 @@ const presale_abi: any = [
   {
     inputs: [],
     name: "enableTrading",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "endPresale",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -287,6 +287,13 @@ const presale_abi: any = [
     ],
     name: "OwnershipTransferred",
     type: "event",
+  },
+  {
+    inputs: [],
+    name: "pausePresale",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [

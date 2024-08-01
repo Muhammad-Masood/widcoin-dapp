@@ -66,16 +66,13 @@ const Navbar = () => {
         >
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 sm:px-3">
-              <Link href="/claim" className="">
-                <p className="block px-3 py-2 rounded-md text-base font-medium text-white bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+              <Link href="/claim">
+                <p className="block px-3 py-2 rounded-md text-base font-medium text-white bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 hover:from-red-500 hover:to-purple-400 transform hover:scale-105 transition-transform duration-300">
                   Claim
                 </p>
               </Link>
-              <Link
-                href="https://widcoin.net/"
-                className=""
-              >
-                <p className="block px-3 py-2 rounded-md text-base font-medium text-white bg-gradient-to-r from-green-400 to-blue-500">
+              <Link href="https://widcoin.net/">
+                <p className="block px-3 py-2 rounded-md text-base font-medium text-white bg-gradient-to-r from-green-400 to-blue-500 hover:from-blue-500 hover:to-green-400 transform hover:scale-105 transition-transform duration-300">
                   Back To Website
                 </p>
               </Link>

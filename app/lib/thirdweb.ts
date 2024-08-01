@@ -48,7 +48,7 @@ const usdtContract = getContract({
 });
 
 const wallets = [
-  inAppWallet(),
+  // inAppWallet(),
   createWallet("io.metamask"),
   createWallet("com.coinbase.wallet"),
   createWallet("me.rainbow"),
@@ -75,5 +75,5 @@ export {
   presaleContractEthers,
   tokenContract,
   usdtContract,
-  usdtContractEthers
+  usdtContractEthers,
 };

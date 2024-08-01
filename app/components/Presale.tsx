@@ -1,10 +1,8 @@
 "use client";
-
-import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import bnb from "@/public/bnb.png";
-import usdt from "../../public/usdt(bep-20).png";
-import wclogo from "@/public/wclogo.png";
+// import bnb from "../../public/bnb.png";
+// import usdt from "../../public/usdt(bep-20).png";
+// import wclogo from "@/public/wclogo.png";
 import { useActiveAccount, useSendTransaction } from "thirdweb/react";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +28,7 @@ const Presale = ({
   stageNumber: number;
   stageDetails: Stage;
 }) => {
+  console.log(stageDetails);
   const [selectedPaymentMode, setSelectedPaymentMode] = useState<number>(0); // 0 => BNB 1 => USDT
   const [showPopup, setShowPopup] = useState<boolean>(isAirdropOpen);
   const [referralLink, setReferralLink] = useState<string | undefined>(
@@ -72,7 +71,25 @@ const Presale = ({
       });
     };
 
-    if (activeAccount) fetchUserPurchaedWID();
+    const updateStageDetails = async () => {
+      const currentStageNumber = await presaleContractEthers.currentStage();
+      const stageDetails = await presaleContractEthers.getStageSpecs(
+        currentStageNumber
+      );
+      const updatedSupplySold = ethers.formatEther(stageDetails.supplySold);
+      const updatedStageSupply = ethers.formatEther(stageDetails.stageSupply);
+      const updatedMinPartcip = Number(stageDetails.minParticipationUSDT) / 1e8;
+      const updatedTokenPrice = Number(stageDetails.tokenPrice) / 1e8;
+      stageDetails.stageSupply = updatedStageSupply;
+      stageDetails.supplySold = updatedSupplySold;
+      stageDetails.tokenPrice = updatedTokenPrice;
+      stageDetails.minParticipationUSDT = updatedMinPartcip;
+    };
+
+    if (activeAccount) {
+      fetchUserPurchaedWID();
+      updateStageDetails();
+    }
     if (isError) {
       toast({
         title: "Error",
@@ -193,19 +210,19 @@ const Presale = ({
   };
 
   return (
-    <div className="w-full lg:w-1/2 px-2 my-4">
+    <div className="w-full lg:w-1/2 my-4">
       {showPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-5 rounded-lg shadow-lg text-center">
-            <h2 className="text-xl font-bold text-yellow-500">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
+          <div className="bg-gradient-to-r from-blue-900 via-purple-900 to-black p-6 rounded-lg shadow-2xl text-center">
+            <h2 className="text-2xl font-bold text-yellow-400">
               Buy now and double (x2) your $WID!
             </h2>
-            <p className="text-gray-700 mt-2">
+            <p className="text-gray-300 mt-3">
               Limited time offer during the airdrop period.
             </p>
-            <p className="text-red-500 font-semibold">{countdown}</p>
+            <p className="text-red-500 font-semibold text-lg">{countdown}</p>
             <button
-              className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded-lg"
+              className="mt-5 px-5 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg shadow-lg hover:from-yellow-600 hover:to-yellow-700"
               onClick={() => setShowPopup(false)}
             >
               Close
@@ -213,61 +230,58 @@ const Presale = ({
           </div>
         </div>
       )}
-      <div className="container v1 border-2 border-white rounded-lg bg-black bg-opacity-50 p-5">
-        <div className="iq-countdown text-center">
-          <h3 className="text-3d uppercase">
-            <span className="bg-clip-text text-transparent bg-gradient-to-b from-yellow-400 to-yellow-600 text-3xl font-bold">
-              Join Presale
-            </span>
+      <div className="container border-2 border-blue-500 rounded-lg bg-gradient-to-r from-blue-900 via-purple-900 to-black px-2 lg:px-5 py-5 ">
+        <div className="iq-countdown text-center pb-2 pt-2">
+          <h3 className="uppercase text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 pb-2">
+            Join Presale
           </h3>
-          <div className="progress my-2"></div>
-          <p className="text-xl text-pink-500 font-semibold">
-            🔥 Listings Price: <span className="font-bold">{tokenPrice}</span>{" "}
-            🔥
+          <div className="progress my-3 h-2 bg-gray-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-yellow-500"
+              style={{ width: "50%" }}
+            ></div>
+          </div>
+          <p className="text-xl text-yellow-400 font-semibold pb-2 pt-2">
+            🔥 1 $WID = <span className="font-bold">${tokenPrice}</span> 🔥
           </p>
         </div>
-        <div className="flex space-x-2 items-center justify-center my-5">
-          <hr className="border-t border-white w-1/5" />
-          <h2 className="text-white text-lg font-bold">
-            Your Purchased $WID ={" "}
-            {userWIDTokens
-              ? userWIDTokens.purchasedTokens.toString() +
-                " " +
-                "($" +
-                (userWIDTokens.purchasedTokens * tokenPrice).toString() +
-                ")"
-              : "---"}
-          </h2>
-          <hr className="border-t border-white w-1/5" />
-        </div>
-        <ul className="flex justify-center space-x-2 mb-5">
+        <ul className="flex justify-center space-x-4 mb-5 pt-3">
           {["BNB", "USDT(BEP-20)"].map((item, index) => (
             <li
               key={index}
-              className="nav-item bg-purple-900 rounded-md shadow-lg"
+              className="nav-item bg-purple-800 rounded-md shadow-lg"
             >
               <button
-                className={`nav-link flex items-center space-x-2 p-2 text-white ${
+                className={`nav-link flex items-center space-x-2 p-3 text-white ${
                   selectedPaymentMode === index
                     ? "bg-purple-700"
-                    : "hover:bg-purple-800"
+                    : "hover:bg-purple-600"
                 }`}
                 onClick={() => setSelectedPaymentMode(index)}
               >
-                <Image
-                  src={item === "BNB" ? bnb : usdt}
+                <img
+                  src={item === "BNB" ? "/bnb.png" : "/usdt(bep-20).png"}
                   alt={`${item}_logo`}
                   width={30}
                   height={30}
                 />
-                <b className="text-sm font-grinddemolished">{item}</b>
+                <b className="text-xs lg:text-sm md:text-sm font-bold">
+                  {item}
+                </b>
               </button>
             </li>
           ))}
         </ul>
-        <div className="tab-content py-2">
-          <div className={`tab-pane fade`}>
-            <div className="space-y-1 mt-1 mb-2">
+        {selectedPaymentMode == 1 && (
+          <div className="text-center mt-2 text-sm text-gray-500">
+            <p>
+              Note: There will be a total of 2 transactions for USDT(BEP-20).
+            </p>
+          </div>
+        )}
+        <div className="tab-content py-4">
+          <div className={`tab-pane fade show active`}>
+            <div className="space-y-2 mt-2 mb-4">
               <label className="text-white text-sm">Enter Amount</label>
               <div className="flex">
                 <input
@@ -277,12 +291,12 @@ const Presale = ({
                   }}
                   min={1}
                   type="number"
-                  className="w-full py-3 px-2 outline-none rounded-l"
+                  className="w-full py-3 px-3 outline-none rounded-l bg-gray-800 text-white"
                   placeholder="$WID Amount to purchase"
                 />
-                <button className="flex items-center text-white rounded-r border-l bg-gray-300">
-                  <Image
-                    src={wclogo}
+                <button className="flex items-center text-white rounded-r border-l bg-gray-600 px-4">
+                  <img
+                    src="/wclogo.png"
                     alt="Preloader Logo"
                     width={50}
                     height={40}
@@ -292,7 +306,7 @@ const Presale = ({
             </div>
             <div className="text-center my-5">
               <button
-                className="gold-button px-6 py-3 rounded-lg bg-gradient-to-r from-gold-light to-gold-dark text-white font-bold shadow-lg hover:from-gold-dark hover:to-gold-light transform hover:scale-105 transition-transform duration-300"
+                className="px-6 py-3 rounded-lg bg-gradient-to-r from-gold-light to-gold-dark text-white font-bold shadow-lg hover:from-gold-dark hover:to-gold-light transform hover:scale-105 transition-transform duration-300"
                 onClick={buyToken}
                 disabled={isPending || isApproving}
               >
@@ -305,34 +319,47 @@ const Presale = ({
             </div>
           </div>
         </div>
-        <div className="presaleStats bg-yellow-400 bg-opacity-25 text-gray-200 p-5 rounded-lg">
-          <div className="statTop flex justify-between items-center border-b border-gray-600 pb-2">
+        <div className="presaleStats bg-yellow-500 bg-opacity-10 text-gray-200 p-6 rounded-lg shadow-inner">
+          <div className="flex space-x-2 items-center justify-center my-5">
+            <hr className="border-t border-white w-1/5" />
+            <h2 className="text-white text-md font-bold">
+              Your Purchased $WID ={" "}
+              {userWIDTokens
+                ? userWIDTokens.purchasedTokens.toString() +
+                  " " +
+                  "($" +
+                  (userWIDTokens.purchasedTokens * tokenPrice).toString() +
+                  ")"
+                : "---"}
+            </h2>
+            <hr className="border-t border-white w-1/5" />
+          </div>
+          <div className="statTop flex justify-between items-center border-b border-gray-600 pb-3">
             <p className="text-sm md:text-base">Your Referral Rewards</p>
             <p className="text-sm md:text-base">
               {userWIDTokens ? userWIDTokens.referralTokens : "---"} $WID
             </p>
           </div>
-          <div className="statBottom flex justify-between items-center py-2">
+          <div className="statBottom flex justify-between items-center py-3">
             <p className="text-sm md:text-base">Stage</p>
             <p className="text-sm md:text-base">{Number(stageNumber)}</p>
           </div>
-          <div className="statBottom flex justify-between items-center py-2">
+          <div className="statBottom flex justify-between items-center py-3">
             <p className="text-sm md:text-base">Token Sold</p>
             <p className="text-sm md:text-base">
               {supplySold} / {stageSupply} $WID
             </p>
           </div>
-          <div className="statBottom flex justify-between items-center py-2">
+          <div className="statBottom flex justify-between items-center py-3">
             <p className="text-sm md:text-base">
               Min Participation (Winner Pool)
             </p>
             <p className="text-sm md:text-base">{minParticipationUSDT} $</p>
           </div>
         </div>
-
-        <div className="text-center mt-5">
+        <div className="text-center mt-6">
           <button
-            className="space-y-2"
+            className="px-4 py-2 bg-purple-700 text-white rounded-lg shadow-md hover:bg-purple-600"
             onClick={() =>
               activeAccount === undefined
                 ? toast({
@@ -344,13 +371,13 @@ const Presale = ({
                   )
             }
           >
-            <p className="text-pink-500 font-bold">Claim 10% Referral Link</p>
-            {referralLink ? (
+            <p className="text-pink-200 font-bold">Claim 10% Referral Link</p>
+            {referralLink && (
               <Badge
                 variant={"secondary"}
-                className="cursor-pointer font-bold"
+                className="cursor-pointer font-bold mt-2"
                 onClick={() => {
-                  navigator.clipboard.writeText(referralLink!);
+                  navigator.clipboard.writeText(referralLink);
                   toast({
                     title: "Copied to Clipboard",
                   });
@@ -358,8 +385,6 @@ const Presale = ({
               >
                 Copy Link
               </Badge>
-            ) : (
-              ""
             )}
           </button>
         </div>

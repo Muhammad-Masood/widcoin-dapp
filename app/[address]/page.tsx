@@ -3,11 +3,23 @@ import Presale from "../components/Presale";
 import { ethers } from "ethers";
 import { Stage } from "../lib/types";
 import { presaleContractEthers } from "../lib/thirdweb";
-export default async function Home({
-  params,
-}: {
-  params: { address: string | undefined };
-}) {
+
+export async function generateStaticParams() {
+  // Define the parameters for the pages you want to generate
+  // You should return an array of objects with the `address` parameter
+  // For example, assuming you have a list of addresses you want to pre-render
+
+  const addresses = [
+    "0x254Acc6701C48a7912436F5d4ae00670e3D766cA",
+    "0xB211AF67B5FFe8499c943f1968B5BB0ac7C76478",
+  ]; // Replace with your addresses
+
+  return addresses.map((address) => ({
+    address: address,
+  }));
+}
+
+export default async function Home({ params }: { params: { address: any } }) {
   const { address } = params;
   const isAirdropOpen = await presaleContractEthers.isAirdropOpen();
   const airdropEndTime = await presaleContractEthers.airdropEndTime();
