@@ -53,6 +53,22 @@ export default async function Home({ params }: { params: { address: any } }) {
     return countdown;
   };
 
+  const currentStage = await presaleContractEthers.currentStage();
+  let totalFundsRaised: number = 0;
+  const stageSpecs = await Promise.all(
+    Array.from({ length: Number(currentStage) }, async (_, index) => {
+      const stageSpecs: Stage = await presaleContractEthers.getStageSpecs(
+        index + 1
+      );
+      totalFundsRaised +=
+        Number(ethers.formatEther(stageSpecs.supplySold)) *
+        Number(ethers.formatUnits(stageSpecs.tokenPrice, 8));
+      return stageSpecs;
+    })
+  );
+
+  console.log(stageSpecs, totalFundsRaised);
+
   return (
     <div className="flex items-center justify-center">
       <Presale
@@ -64,6 +80,7 @@ export default async function Home({ params }: { params: { address: any } }) {
         referral={address}
         stageDetails={updatedStageDetails}
         stageNumber={currentStageNumber}
+        totalFundsRaised={totalFundsRaised}
       />
     </div>
   );

@@ -25,6 +25,22 @@ export default async function Home() {
     tokenPrice: updatedTokenPrice,
   };
 
+  const currentStage = await presaleContractEthers.currentStage();
+  let totalFundsRaised: number = 0;
+  const stageSpecs = await Promise.all(
+    Array.from({ length: Number(currentStage) }, async (_, index) => {
+      const stageSpecs: Stage = await presaleContractEthers.getStageSpecs(
+        index + 1
+      );
+      totalFundsRaised +=
+        Number(ethers.formatEther(stageSpecs.supplySold)) *
+        Number(ethers.formatUnits(stageSpecs.tokenPrice, 8));
+      return stageSpecs;
+    })
+  );
+
+  console.log(stageSpecs, totalFundsRaised);
+
   const calculateInitialCountdown = () => {
     const now = Date.now();
     const distance = Number(airdropEndTime) * 1000 - now;
@@ -50,6 +66,7 @@ export default async function Home() {
         referral={undefined}
         stageDetails={updatedStageDetails}
         stageNumber={currentStageNumber}
+        totalFundsRaised={totalFundsRaised}
       />
     </div>
   );

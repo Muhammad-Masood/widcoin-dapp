@@ -973,6 +973,7 @@ const erc20_abi: any = [
 ];
 
 const usdt_address: string = "0x3Bbf78eB227f243e9e308476fF7CA33eFcD015dc";
+const usdc_address: string = "0x130799d0F0DFA7206AA3B9c0D34daaEC51a9648E";
 
 export {
   presale_address,
@@ -980,4 +981,5 @@ export {
   widcoin_address,
   erc20_abi,
   usdt_address,
+  usdc_address,
 };

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { contract, presaleContractEthers } from "../lib/thirdweb";
 import { prepareContractCall, toWei } from "thirdweb";
 import { ethers } from "ethers";
-import { erc20_abi, presale_address, usdt_address } from "../contract/data";
+import { erc20_abi, presale_address, usdc_address, usdt_address } from "../contract/data";
 import { Stage } from "../lib/types";
 import { useRouter } from "next/navigation";
 
@@ -20,6 +20,7 @@ const Presale = ({
   referral,
   stageNumber,
   stageDetails,
+  totalFundsRaised,
 }: {
   initialAirdropCountdown: string;
   isAirdropOpen: boolean;
@@ -27,6 +28,7 @@ const Presale = ({
   referral: string | undefined;
   stageNumber: number;
   stageDetails: Stage;
+  totalFundsRaised: Number;
 }) => {
   console.log(stageDetails);
   const [selectedPaymentMode, setSelectedPaymentMode] = useState<number>(0); // 0 => BNB 1 => USDT
@@ -133,10 +135,10 @@ const Presale = ({
 
   const prepareAndSendTransaction = async () => {
     const wicAmountDec = toWei(wicAmount);
-    const totalWICCost = await presaleContractEthers.calculateTotalTokensCost(
-      wicAmountDec,
-      selectedPaymentMode
-    );
+    // const totalWICCost = await presaleContractEthers.calculateTotalTokensCost(
+    //   wicAmountDec,
+    //   selectedPaymentMode
+    // );
     const transaction = prepareContractCall({
       contract,
       method: "function buyToken(uint256 amount, uint8 mode,address refferal)",
@@ -147,7 +149,7 @@ const Presale = ({
           ? "0x0000000000000000000000000000000000000000"
           : referral,
       ],
-      value: selectedPaymentMode !== 0 ? 0 : totalWICCost,
+      // value: selectedPaymentMode !== 0 ? 0 : totalWICCost,
     });
     sendTransaction(transaction);
   };
@@ -168,35 +170,33 @@ const Presale = ({
             selectedPaymentMode
           );
 
-        if (selectedPaymentMode === 1) {
-          if (typeof window !== "undefined") {
-            const provider = new ethers.BrowserProvider(
-              (window as any).ethereum
-            );
-            const signer = await provider.getSigner();
-            const usdtSignerContract = new ethers.Contract(
-              usdt_address,
-              erc20_abi,
-              signer
-            );
-            const tx = await usdtSignerContract.approve(
-              presale_address,
-              totalWICCost
-            );
-            console.log(tx);
-            setTimeout(() => {
-              console.log("processing after 10 seconds");
-              prepareAndSendTransaction();
-            }, 9000);
-            toast({
-              title: "Approval transaction processed successfully!",
-              description:
-                "Please wait for the confirmation and purchase transaction.",
-            });
-          }
-        } else {
-          await prepareAndSendTransaction();
+        // if (selectedPaymentMode === 1) {
+        if (typeof window !== "undefined") {
+          const provider = new ethers.BrowserProvider((window as any).ethereum);
+          const signer = await provider.getSigner();
+          const tokenSignerContract = new ethers.Contract(
+            selectedPaymentMode===1?usdt_address:usdc_address,
+            erc20_abi,
+            signer
+          );
+          const tx = await tokenSignerContract.approve(
+            presale_address,
+            totalWICCost
+          );
+          console.log(tx);
+          setTimeout(() => {
+            console.log("processing after 10 seconds");
+            prepareAndSendTransaction();
+          }, 9000);
+          toast({
+            title: "Approval transaction processed successfully!",
+            description:
+              "Please wait for the confirmation and purchase transaction.",
+          });
         }
+        // } else {
+        //   await prepareAndSendTransaction();
+        // }
       } catch (error) {
         toast({
           title: "Error",
@@ -246,7 +246,7 @@ const Presale = ({
           </p>
         </div>
         <ul className="flex justify-center space-x-4 mb-5 pt-3">
-          {["BNB", "USDT(BEP-20)"].map((item, index) => (
+          {["USDC(BEP-20)", "USDT(BEP-20)"].map((item, index) => (
             <li
               key={index}
               className="nav-item bg-purple-800 rounded-md shadow-lg"
@@ -260,7 +260,11 @@ const Presale = ({
                 onClick={() => setSelectedPaymentMode(index)}
               >
                 <img
-                  src={item === "BNB" ? "/bnb.png" : "/usdt(bep-20).png"}
+                  src={
+                    item === "USDC(BEP-20)"
+                      ? "/usdc(bep-20).png"
+                      : "/usdt(bep-20).png"
+                  }
                   alt={`${item}_logo`}
                   width={30}
                   height={30}
@@ -355,6 +359,12 @@ const Presale = ({
               Min Participation (Winner Pool)
             </p>
             <p className="text-sm md:text-base">{minParticipationUSDT} $</p>
+          </div>
+          <div className="statBottom flex justify-between items-center py-3">
+            <p className="text-sm md:text-base">Total Funds Raised</p>
+            <p className="text-sm md:text-base">
+              {totalFundsRaised.toString()} $
+            </p>
           </div>
         </div>
         <div className="text-center mt-6">
