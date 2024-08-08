@@ -16,7 +16,7 @@ const page = async () => {
     })
   );
   const currentStage = Number(await presaleContractEthers.currentStage());
-
+  console.log(winnersTillCurrentStage, currentStage, isTradingEnabled);
   return (
     <div className="flex items-center justify-center">
       <Claim

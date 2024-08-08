@@ -73,7 +73,7 @@ const Claim = ({
       const transaction = prepareContractCall({
         contract,
         method: "function claimWinnerPool(uint8 stageNumber)",
-        params: [stageNumber],
+        params: [stageNumber - 1],
       });
       sendTransaction(transaction);
       toast({
@@ -143,13 +143,13 @@ const Claim = ({
                     onChange={(e) => {
                       e.preventDefault();
                       const val = Number(e.target.value);
-                      if (val > 10 || val < currentStage) return;
+                      if (val > 10 || val < currentStage - 1) return;
                       setStageNumber(val);
                     }}
                     type="number"
-                    min={currentStage}
+                    min={currentStage - 1}
                     max={10}
-                    defaultValue={currentStage}
+                    defaultValue={currentStage - 1}
                   />
                 </div>
               </div>
@@ -190,7 +190,7 @@ const Claim = ({
                         winners[index].winner.length - 4
                       )}
                     <span className="pl-2 font-mono overflow-hidden text-ellipsis whitespace-nowrap">
-                      {'($'+winners[index].winningPool.toString()+')'}
+                      {"($" + winners[index].winningPool.toString() + ")"}
                     </span>
                   </Link>
                 </div>

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { ConnectButton } from "thirdweb/react";
 import { client, wallets } from "../lib/thirdweb";
 import Link from "next/link";
-import Image from "next/image";
 import wclogo from "@/public/wclogo.png";
 import { Button } from "@/components/ui/button";
 import { Menu, Transition } from "@headlessui/react";
@@ -15,7 +14,7 @@ const Navbar = () => {
   return (
     <div>
       <div className="header1 bg-[#040C18] text-[#f1f1f1] py-2" id="myHeader">
-        <p className="text-center text-sm text-[#ec33bd]">
+        <p className="text-center text-xs lg:text-sm md:text-sm text-[#ec33bd]">
           PHISHING WARNING: please make sure you&apos;re visiting
           https://dapp.widcoin.net/ - check the URL carefully.
         </p>
@@ -25,7 +24,7 @@ const Navbar = () => {
         <div className="container mx-auto py-4 px-7">
           <nav className="navbar flex justify-between items-center">
             <Link className="navbar-brand" href="/">
-              <Image src={wclogo} height={60} width={60} alt="widcoin_logo" />
+              <img src={'/wclogo.png'} height={60} width={60} alt="widcoin_logo" />
             </Link>
             <div className="hidden md:flex items-center space-x-7">
               <Link href="/claim">

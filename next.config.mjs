@@ -6,7 +6,20 @@ const nextConfig = {
     );
     return config;
   },
-  // output: "export"
+  serverRuntimeConfig: {
+    // Set custom timeout
+    maxPageSize: 10 * 1024 * 1024, // 10MB
+  },
+  // async redirects() {
+  //   return [
+  //     {
+  //       source: "/redirect-me",
+  //       destination: "/target",
+  //       permanent: true,
+  //     },
+  //   ];
+  // },
+  output: "export",
 };
 
 export default nextConfig;

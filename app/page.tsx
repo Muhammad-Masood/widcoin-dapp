@@ -4,7 +4,7 @@ import { presaleContractEthers } from "./lib/thirdweb";
 import { ethers } from "ethers";
 import { Stage } from "./lib/types";
 
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const isAirdropOpen = await presaleContractEthers.isAirdropOpen();

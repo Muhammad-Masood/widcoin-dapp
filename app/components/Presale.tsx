@@ -9,9 +9,18 @@ import { Badge } from "@/components/ui/badge";
 import { contract, presaleContractEthers } from "../lib/thirdweb";
 import { prepareContractCall, toWei } from "thirdweb";
 import { ethers } from "ethers";
-import { erc20_abi, presale_address, usdc_address, usdt_address } from "../contract/data";
+import {
+  erc20_abi,
+  presale_address,
+  usdc_address,
+  usdt_address,
+  widcoin_address,
+} from "../contract/data";
 import { Stage } from "../lib/types";
 import { useRouter } from "next/navigation";
+
+const tokenAddressUrl = `https://bscscan.com/address/${widcoin_address}`;
+const presaleAddressUrl = `https://bscscan.com/address/${presale_address}`;
 
 const Presale = ({
   initialAirdropCountdown,
@@ -175,7 +184,7 @@ const Presale = ({
           const provider = new ethers.BrowserProvider((window as any).ethereum);
           const signer = await provider.getSigner();
           const tokenSignerContract = new ethers.Contract(
-            selectedPaymentMode===1?usdt_address:usdc_address,
+            selectedPaymentMode === 1 ? usdt_address : usdc_address,
             erc20_abi,
             signer
           );
@@ -245,7 +254,7 @@ const Presale = ({
             🔥 1 $WID = <span className="font-bold">${tokenPrice}</span> 🔥
           </p>
         </div>
-        <ul className="flex justify-center space-x-4 mb-5 pt-3">
+        <ul className="flex justify-center space-x-6 mb-5 pt-3">
           {["USDC(BEP-20)", "USDT(BEP-20)"].map((item, index) => (
             <li
               key={index}
@@ -269,20 +278,36 @@ const Presale = ({
                   width={30}
                   height={30}
                 />
-                <b className="text-xs lg:text-sm md:text-sm font-bold">
-                  {item}
+                <b className="">
+                  {item === "USDT(BEP-20)" ? (
+                    <div className="flex flex-col">
+                      <p className="text-xs lg:text-md md:text-sm font-bold tracking-wide">
+                        USDT
+                      </p>
+                      <span className="text-xs lg:text-sm font-normal lg:font-bold md:font-medium">
+                        (BEP-20)
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col">
+                      <p className="text-xs lg:text-md md:text-sm font-bold tracking-wide">
+                        USDC
+                      </p>
+                      <span className="text-xs lg:text-sm font-normal lg:font-bold md:font-medium">
+                        (BEP-20)
+                      </span>
+                    </div>
+                  )}
                 </b>
               </button>
             </li>
           ))}
         </ul>
-        {selectedPaymentMode == 1 && (
-          <div className="text-center mt-2 text-sm text-gray-500">
-            <p>
-              Note: There will be a total of 2 transactions for USDT(BEP-20).
-            </p>
-          </div>
-        )}
+        {/* {selectedPaymentMode == 1 && ( */}
+        <div className="text-center mt-2 text-sm text-gray-400">
+          <p>Note: There will be a total of 2 transactions.</p>
+        </div>
+        {/* )} */}
         <div className="tab-content py-4">
           <div className={`tab-pane fade show active`}>
             <div className="space-y-2 mt-2 mb-4">
@@ -295,7 +320,7 @@ const Presale = ({
                   }}
                   min={1}
                   type="number"
-                  className="w-full py-3 px-3 outline-none rounded-l bg-gray-800 text-white"
+                  className="w-full py-3 px-3 outline-none rounded-l bg-gray-800 text-white text-sm"
                   placeholder="$WID Amount to purchase"
                 />
                 <button className="flex items-center text-white rounded-r border-l bg-gray-600 px-4">
@@ -367,7 +392,7 @@ const Presale = ({
             </p>
           </div>
         </div>
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 flex items-center justify-center flex-col">
           <button
             className="px-4 py-2 bg-purple-700 text-white rounded-lg shadow-md hover:bg-purple-600"
             onClick={() =>
@@ -397,6 +422,38 @@ const Presale = ({
               </Badge>
             )}
           </button>
+          <div className="flex items-center gap-4 mt-3 text-white pt-3">
+            <a
+              href={tokenAddressUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 lg:gap-2 md:gap-2"
+            >
+              <img
+                src={"/bsscan.png"}
+                alt="bsscan_logo"
+                className="w-6 h-6" // Adjust the size as needed
+              />
+              <span className="text-xs lg:text-sm md:text-sm">
+                WID Coin Contract
+              </span>
+            </a>
+            <a
+              href={presaleAddressUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center  gap-1 lg:gap-2 md:gap-2"
+            >
+              <img
+                src={"/bsscan.png"}
+                alt="BSScan Logo"
+                className="w-6 h-6" // Adjust the size as needed
+              />
+              <span className="text-xs lg:text-sm md:text-sm">
+                Presale Contract
+              </span>
+            </a>
+          </div>
         </div>
       </div>
     </div>

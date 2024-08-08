@@ -1,4 +1,5 @@
-const presale_address: string = "0x833f590b398F6D00eFb79Db4B4c53f5E09A0A918";
+const presale_address: string = "0xFaCaf1c2808b099c8031903Ce39f113Dff3C15d6";
+// const presale_address: string = "0x833f590b398F6D00eFb79Db4B4c53f5E09A0A918";
 const presale_abi: any = [
   {
     inputs: [],
@@ -137,7 +138,7 @@ const presale_abi: any = [
     ],
     name: "buyToken",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -449,25 +450,6 @@ const presale_abi: any = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "buyer",
-        type: "address",
-      },
-    ],
-    name: "buyerToIsAlreadyEligible",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "hasMarkedEligible",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "token_amount",
         type: "uint256",
@@ -516,30 +498,6 @@ const presale_abi: any = [
         internalType: "int256",
         name: "",
         type: "int256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_requestId",
-        type: "uint256",
-      },
-    ],
-    name: "getRequestStatus",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "fulfilled",
-        type: "bool",
-      },
-      {
-        internalType: "uint256[]",
-        name: "randomWords",
-        type: "uint256[]",
       },
     ],
     stateMutability: "view",
@@ -799,21 +757,9 @@ const presale_abi: any = [
     stateMutability: "view",
     type: "function",
   },
-  {
-    inputs: [],
-    name: "winnerIndex",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
 ];
-const widcoin_address: string = "0x1F4D71254a9175c13c6e8ff441f42D4aE42487De";
+// const widcoin_address: string = "0x1F4D71254a9175c13c6e8ff441f42D4aE42487De";
+const widcoin_address: string = "0xb6CFc7b7aC28aad46773a9B1605e5992C61d8aDa";
 const erc20_abi: any = [
   { inputs: [], stateMutability: "nonpayable", type: "constructor" },
   {
@@ -972,8 +918,10 @@ const erc20_abi: any = [
   },
 ];
 
-const usdt_address: string = "0x3Bbf78eB227f243e9e308476fF7CA33eFcD015dc";
-const usdc_address: string = "0x130799d0F0DFA7206AA3B9c0D34daaEC51a9648E";
+// const usdt_address: string = "0x3Bbf78eB227f243e9e308476fF7CA33eFcD015dc";
+const usdt_address: string = "0x55d398326f99059fF775485246999027B3197955";
+// const usdc_address: string = "0x130799d0F0DFA7206AA3B9c0D34daaEC51a9648E";
+const usdc_address: string = "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d";
 
 export {
   presale_address,
