@@ -758,8 +758,8 @@ const presale_abi: any = [
     type: "function",
   },
 ];
-// const widcoin_address: string = "0x1F4D71254a9175c13c6e8ff441f42D4aE42487De";
 const widcoin_address: string = "0xb6CFc7b7aC28aad46773a9B1605e5992C61d8aDa";
+// const widcoin_address: string = "0xb6CFc7b7aC28aad46773a9B1605e5992C61d8aDa";
 const erc20_abi: any = [
   { inputs: [], stateMutability: "nonpayable", type: "constructor" },
   {

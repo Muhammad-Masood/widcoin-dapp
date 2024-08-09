@@ -1,9 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
-import { useSendTransaction } from "thirdweb/react";
+import { useActiveAccount, useSendTransaction } from "thirdweb/react";
 import { prepareContractCall } from "thirdweb";
-import { contract } from "../lib/thirdweb";
+import { contract, presaleContractEthers } from "../lib/thirdweb";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Claim = ({
   isTradingEnabled,
@@ -29,14 +30,21 @@ const Claim = ({
   }[];
   currentStage: number;
 }) => {
-  console.log(isTradingEnabled);
+  const [data, setData] = useState({
+    isTradingEnabled,
+    winners,
+    currentStage,
+  });
   const [stageNumber, setStageNumber] = useState(1);
   const [isWinnerClaimPending, setIsWinnerClaimPending] = useState(false);
   const {
     mutate: sendTransaction,
     isPending,
     isSuccess,
+    isError,
   } = useSendTransaction();
+  const activeAccount = useActiveAccount();
+  const router = useRouter();
 
   const handleClaimTokens = async () => {
     try {
@@ -90,6 +98,64 @@ const Claim = ({
     }
   };
 
+  useEffect(() => {
+    const updateData = async () => {
+      const isTradingEnabled = await presaleContractEthers.isTradingEnabled();
+      const winnersTillCurrentStage = await Promise.all(
+        Array.from({ length: 10 }, async (_, index) => {
+          const stageDetails = await presaleContractEthers.getStageSpecs(
+            index + 1
+          );
+          return {
+            winner: stageDetails.winner,
+            winningPool: Number(stageDetails.winningPool) / 1e8,
+          };
+        })
+      );
+      const updatedCurrentStage = Number(
+        await presaleContractEthers.currentStage()
+      );
+      setData({
+        currentStage: updatedCurrentStage,
+        isTradingEnabled: isTradingEnabled,
+        winners: winnersTillCurrentStage,
+      });
+    };
+    updateData();
+    if (isSuccess) {
+      setTimeout(() => {
+        updateData();
+        router.refresh();
+      }, 8000);
+    }
+  }, [activeAccount?.address, isError, isSuccess]);
+
+  useEffect(() => {
+    const updateData = async () => {
+      const isTradingEnabled = await presaleContractEthers.isTradingEnabled();
+      const winnersTillCurrentStage = await Promise.all(
+        Array.from({ length: 10 }, async (_, index) => {
+          const stageDetails = await presaleContractEthers.getStageSpecs(
+            index + 1
+          );
+          return {
+            winner: stageDetails.winner,
+            winningPool: Number(stageDetails.winningPool) / 1e8,
+          };
+        })
+      );
+      const updatedCurrentStage = Number(
+        await presaleContractEthers.currentStage()
+      );
+      setData({
+        currentStage: updatedCurrentStage,
+        isTradingEnabled: isTradingEnabled,
+        winners: winnersTillCurrentStage,
+      });
+    };
+    updateData();
+  }, []);
+
   return (
     <div className="w-full lg:w-1/2 px-5 mt-10">
       <div className="container border-2 border-white rounded-lg bg-black bg-opacity-50 p-5">
@@ -102,12 +168,12 @@ const Claim = ({
         <div className="text-center my-5">
           <button
             className={`px-6 py-3 rounded-lg bg-gradient-to-r from-gold-light to-gold-dark text-white font-bold shadow-lg hover:from-gold-dark hover:to-gold-light transform hover:scale-105 transition-transform duration-300 ${
-              isPending || !isTradingEnabled
+              isPending || !data.isTradingEnabled
                 ? "opacity-50 cursor-not-allowed"
                 : ""
             }`}
             onClick={handleClaimTokens}
-            disabled={isPending || !isTradingEnabled}
+            disabled={isPending || !data.isTradingEnabled}
           >
             {isPending ? "Processing..." : "Claim Tokens"}
           </button>
@@ -118,11 +184,11 @@ const Claim = ({
             <DialogTrigger asChild>
               <button
                 className={`px-6 py-3 rounded-lg bg-gradient-to-r from-gold-light to-gold-dark text-white font-bold shadow-lg hover:from-gold-dark hover:to-gold-light transform hover:scale-105 transition-transform duration-300 ${
-                  isWinnerClaimPending || !isTradingEnabled
+                  isWinnerClaimPending || !data.isTradingEnabled
                     ? "opacity-50 cursor-not-allowed"
                     : ""
                 }`}
-                disabled={isWinnerClaimPending || !isTradingEnabled}
+                disabled={isWinnerClaimPending || !data.isTradingEnabled}
               >
                 {isWinnerClaimPending ? "Processing..." : "Claim Winner Pool"}
               </button>
@@ -143,13 +209,13 @@ const Claim = ({
                     onChange={(e) => {
                       e.preventDefault();
                       const val = Number(e.target.value);
-                      if (val > 10 || val < currentStage - 1) return;
+                      if (val > 10 || val < data.currentStage - 1) return;
                       setStageNumber(val);
                     }}
                     type="number"
-                    min={currentStage - 1}
+                    min={data.currentStage - 1}
                     max={10}
-                    defaultValue={currentStage - 1}
+                    defaultValue={data.currentStage - 1}
                   />
                 </div>
               </div>
@@ -170,7 +236,7 @@ const Claim = ({
           <h3 className="text-center text-2xl mb-4 text-white font-semibold">
             Winners
           </h3>
-          {!winners[0].winner.startsWith("0x000")
+          {!data.winners[0].winner.startsWith("0x000")
             ? Array.from({ length: stageNumber }).map((stage, index) => (
                 <div
                   key={index}
@@ -182,20 +248,22 @@ const Claim = ({
                   <Link
                     className="text-right text-white flex-1 flex items-center overflow-hidden"
                     target="_blank"
-                    href={`https://bscscan.com/address/${winners[index].winner}`}
+                    href={`https://bscscan.com/address/${data.winners[index].winner}`}
                   >
-                    {winners[index].winner.substring(0, 6) +
+                    {data.winners[index].winner.substring(0, 6) +
                       "..." +
-                      winners[index].winner.substring(
-                        winners[index].winner.length - 4
+                      data.winners[index].winner.substring(
+                        data.winners[index].winner.length - 4
                       )}
                     <span className="pl-2 font-mono overflow-hidden text-ellipsis whitespace-nowrap">
-                      {"($" + winners[index].winningPool.toString() + ")"}
+                      {"($" + data.winners[index].winningPool.toString() + ")"}
                     </span>
                   </Link>
                 </div>
               ))
-            : winners.every((winner) => winner.winner.startsWith("0x000")) && (
+            : data.winners.every((winner) =>
+                winner.winner.startsWith("0x000")
+              ) && (
                 <p className="text-center font-medium tracking-wide text-neutral-100">
                   No winners yet
                 </p>

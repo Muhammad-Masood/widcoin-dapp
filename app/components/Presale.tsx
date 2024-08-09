@@ -17,7 +17,8 @@ import {
   widcoin_address,
 } from "../contract/data";
 import { Stage } from "../lib/types";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { calculateInitialCountdown } from "@/lib/utils";
 
 const tokenAddressUrl = `https://bscscan.com/address/${widcoin_address}`;
 const presaleAddressUrl = `https://bscscan.com/address/${presale_address}`;
@@ -26,7 +27,7 @@ const Presale = ({
   initialAirdropCountdown,
   isAirdropOpen,
   airdropEndTime,
-  referral,
+  // referral,
   stageNumber,
   stageDetails,
   totalFundsRaised,
@@ -34,12 +35,20 @@ const Presale = ({
   initialAirdropCountdown: string;
   isAirdropOpen: boolean;
   airdropEndTime: number;
-  referral: string | undefined;
+  // referral: string | undefined;
   stageNumber: number;
   stageDetails: Stage;
   totalFundsRaised: Number;
 }) => {
-  console.log(stageDetails);
+  const [data, setData] = useState({
+    // initialAirdropCountdown,
+    // isAirdropOpen,
+    airdropEndTime,
+    // referral,
+    stageNumber,
+    stageDetails,
+    totalFundsRaised,
+  });
   const [selectedPaymentMode, setSelectedPaymentMode] = useState<number>(0); // 0 => BNB 1 => USDT
   const [showPopup, setShowPopup] = useState<boolean>(isAirdropOpen);
   const [referralLink, setReferralLink] = useState<string | undefined>(
@@ -57,6 +66,8 @@ const Presale = ({
   const [countdown, setCountdown] = useState<string>(initialAirdropCountdown);
 
   const activeAccount = useActiveAccount();
+  const searchParams = useSearchParams();
+  const referral = searchParams.get("ref");
   const { toast } = useToast();
   const router = useRouter();
   const {
@@ -66,11 +77,9 @@ const Presale = ({
     error,
     isError,
   } = useSendTransaction();
-  const { stageSupply, supplySold, tokenPrice, minParticipationUSDT } =
-    stageDetails;
 
   useEffect(() => {
-    const fetchUserPurchaedWID = async () => {
+    const fetchAndUpdateData = async () => {
       const { address } = activeAccount!;
       const amount = await presaleContractEthers.purchasedTokens(address);
       const referralTokens = await presaleContractEthers.refferalTokens(
@@ -80,27 +89,58 @@ const Presale = ({
         purchasedTokens: Number(ethers.formatEther(amount)),
         referralTokens: Number(ethers.formatEther(referralTokens)),
       });
-    };
-
-    const updateStageDetails = async () => {
+      const isAirdropOpen = await presaleContractEthers.isAirdropOpen();
+      const airdropEndTime = await presaleContractEthers.airdropEndTime();
       const currentStageNumber = await presaleContractEthers.currentStage();
       const stageDetails = await presaleContractEthers.getStageSpecs(
         currentStageNumber
       );
-      const updatedSupplySold = ethers.formatEther(stageDetails.supplySold);
       const updatedStageSupply = ethers.formatEther(stageDetails.stageSupply);
+      const supplySoldFormat = Number(
+        ethers.formatEther(stageDetails.supplySold)
+      );
+      const remainingSupply = Number(updatedStageSupply) - supplySoldFormat;
       const updatedMinPartcip = Number(stageDetails.minParticipationUSDT) / 1e8;
       const updatedTokenPrice = Number(stageDetails.tokenPrice) / 1e8;
-      stageDetails.stageSupply = updatedStageSupply;
-      stageDetails.supplySold = updatedSupplySold;
-      stageDetails.tokenPrice = updatedTokenPrice;
-      stageDetails.minParticipationUSDT = updatedMinPartcip;
-    };
+      const updatedStageDetails: Stage = {
+        ...stageDetails,
+        minParticipationUSDT: updatedMinPartcip,
+        supplyRemaining: remainingSupply,
+        stageSupply: updatedStageSupply,
+        tokenPrice: updatedTokenPrice,
+      };
 
-    if (activeAccount) {
-      fetchUserPurchaedWID();
-      updateStageDetails();
-    }
+      const currentStage = await presaleContractEthers.currentStage();
+      let totalFundsRaised: number = 0;
+      const stageSpecs = await Promise.all(
+        Array.from({ length: Number(currentStage) }, async (_, index) => {
+          const stageSpecs: Stage = await presaleContractEthers.getStageSpecs(
+            index + 1
+          );
+          const supplySoldFormat = Number(
+            ethers.formatEther(stageSpecs.supplySold!)
+          );
+          totalFundsRaised +=
+            supplySoldFormat *
+            Number(ethers.formatUnits(stageSpecs.tokenPrice, 8));
+          return stageSpecs;
+        })
+      );
+      setData({
+        // initialAirdropCountdown:{isAirdropOpen ? calculateInitialCountdown(airdropEndTime) : ""},
+        // isAirdropOpen: isAirdropOpen,
+        airdropEndTime: airdropEndTime,
+        // referral: undefined,
+        stageDetails: updatedStageDetails,
+        stageNumber: currentStageNumber,
+        totalFundsRaised: totalFundsRaised,
+      });
+      setCountdown(
+        isAirdropOpen ? calculateInitialCountdown(airdropEndTime) : ""
+      );
+      setShowPopup(isAirdropOpen);
+    };
+    fetchAndUpdateData();
     if (isError) {
       toast({
         title: "Error",
@@ -114,15 +154,82 @@ const Presale = ({
         description: "Please wait for the transaction confirmation.",
       });
       setTimeout(() => {
+        console.log("soft refresh...");
+        fetchAndUpdateData();
         router.refresh();
-      }, 6000);
+      }, 8000);
     }
   }, [activeAccount?.address, isError, isSuccess]);
 
   useEffect(() => {
+    const fetchAndUpdateData = async () => {
+      if (activeAccount) {
+        const { address } = activeAccount;
+        const amount = await presaleContractEthers.purchasedTokens(address);
+        const referralTokens = await presaleContractEthers.refferalTokens(
+          address
+        );
+        setUserWIDTokens({
+          purchasedTokens: Number(ethers.formatEther(amount)),
+          referralTokens: Number(ethers.formatEther(referralTokens)),
+        });
+      }
+      const isAirdropOpen = await presaleContractEthers.isAirdropOpen();
+      const airdropEndTime = await presaleContractEthers.airdropEndTime();
+      const currentStageNumber = await presaleContractEthers.currentStage();
+      const stageDetails = await presaleContractEthers.getStageSpecs(
+        currentStageNumber
+      );
+      const updatedStageSupply = ethers.formatEther(stageDetails.stageSupply);
+      const supplySoldFormat = Number(
+        ethers.formatEther(stageDetails.supplySold)
+      );
+      const remainingSupply = Number(updatedStageSupply) - supplySoldFormat;
+      const updatedMinPartcip = Number(stageDetails.minParticipationUSDT) / 1e8;
+      const updatedTokenPrice = Number(stageDetails.tokenPrice) / 1e8;
+      const updatedStageDetails: Stage = {
+        ...stageDetails,
+        minParticipationUSDT: updatedMinPartcip,
+        supplyRemaining: remainingSupply,
+        stageSupply: updatedStageSupply,
+        tokenPrice: updatedTokenPrice,
+      };
+
+      const currentStage = await presaleContractEthers.currentStage();
+      let totalFundsRaised: number = 0;
+      const stageSpecs = await Promise.all(
+        Array.from({ length: Number(currentStage) }, async (_, index) => {
+          const stageSpecs: Stage = await presaleContractEthers.getStageSpecs(
+            index + 1
+          );
+          const supplySoldFormat = Number(
+            ethers.formatEther(stageSpecs.supplySold!)
+          );
+          totalFundsRaised +=
+            supplySoldFormat *
+            Number(ethers.formatUnits(stageSpecs.tokenPrice, 8));
+          return stageSpecs;
+        })
+      );
+      setData({
+        // initialAirdropCountdown:{isAirdropOpen ? calculateInitialCountdown(airdropEndTime) : ""},
+        // isAirdropOpen: isAirdropOpen,
+        airdropEndTime: airdropEndTime,
+        // referral: undefined,
+        stageDetails: updatedStageDetails,
+        stageNumber: currentStageNumber,
+        totalFundsRaised: totalFundsRaised,
+      });
+      setCountdown(
+        isAirdropOpen ? calculateInitialCountdown(airdropEndTime) : ""
+      );
+      setShowPopup(isAirdropOpen);
+    };
+    fetchAndUpdateData();
+  }, []);
+  useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();
-      console.log(now);
       const distance = Number(airdropEndTime) * 1000 - now;
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
       const hours = Math.floor(
@@ -154,7 +261,7 @@ const Presale = ({
       params: [
         wicAmountDec,
         selectedPaymentMode,
-        referral === undefined
+        referral === null
           ? "0x0000000000000000000000000000000000000000"
           : referral,
       ],
@@ -251,7 +358,9 @@ const Presale = ({
             ></div>
           </div>
           <p className="text-xl text-yellow-400 font-semibold pb-2 pt-2">
-            🔥 1 $WID = <span className="font-bold">${tokenPrice}</span> 🔥
+            🔥 1 $WID ={" "}
+            <span className="font-bold">${data.stageDetails.tokenPrice}</span>{" "}
+            🔥
           </p>
         </div>
         <ul className="flex justify-center space-x-6 mb-5 pt-3">
@@ -357,9 +466,13 @@ const Presale = ({
                 ? userWIDTokens.purchasedTokens.toString() +
                   " " +
                   "($" +
-                  (userWIDTokens.purchasedTokens * tokenPrice).toString() +
+                  (
+                    userWIDTokens.purchasedTokens * data.stageDetails.tokenPrice
+                  ).toString() +
                   ")"
-                : "---"}
+                : activeAccount
+                ? "---"
+                : "Connect Wallet"}
             </h2>
             <hr className="border-t border-white w-1/5" />
           </div>
@@ -371,24 +484,27 @@ const Presale = ({
           </div>
           <div className="statBottom flex justify-between items-center py-3">
             <p className="text-sm md:text-base">Stage</p>
-            <p className="text-sm md:text-base">{Number(stageNumber)}</p>
+            <p className="text-sm md:text-base">{Number(data.stageNumber)}</p>
           </div>
           <div className="statBottom flex justify-between items-center py-3">
             <p className="text-sm md:text-base">Token Sold</p>
             <p className="text-sm md:text-base">
-              {supplySold} / {stageSupply} $WID
+              {data.stageDetails.stageSupply} /{" "}
+              {data.stageDetails.supplyRemaining} $WID
             </p>
           </div>
           <div className="statBottom flex justify-between items-center py-3">
             <p className="text-sm md:text-base">
               Min Participation (Winner Pool)
             </p>
-            <p className="text-sm md:text-base">{minParticipationUSDT} $</p>
+            <p className="text-sm md:text-base">
+              {data.stageDetails.minParticipationUSDT} $
+            </p>
           </div>
           <div className="statBottom flex justify-between items-center py-3">
             <p className="text-sm md:text-base">Total Funds Raised</p>
             <p className="text-sm md:text-base">
-              {totalFundsRaised.toString()} $
+              {data.totalFundsRaised.toString()} $
             </p>
           </div>
         </div>
@@ -402,7 +518,7 @@ const Presale = ({
                     variant: "destructive",
                   })
                 : setReferralLink(
-                    `${window.location.href}${activeAccount!.address}`
+                    `${window.location.origin}?ref=${activeAccount!.address}`
                   )
             }
           >
