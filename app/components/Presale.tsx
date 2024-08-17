@@ -89,6 +89,7 @@ const Presale = ({
         purchasedTokens: Number(ethers.formatEther(amount)),
         referralTokens: Number(ethers.formatEther(referralTokens)),
       });
+      console.log(userWIDTokens);
       const isAirdropOpen = await presaleContractEthers.isAirdropOpen();
       const airdropEndTime = await presaleContractEthers.airdropEndTime();
       const currentStageNumber = await presaleContractEthers.currentStage();
@@ -140,7 +141,7 @@ const Presale = ({
       );
       setShowPopup(isAirdropOpen);
     };
-    fetchAndUpdateData();
+    if (activeAccount) fetchAndUpdateData();
     if (isError) {
       toast({
         title: "Error",
@@ -372,8 +373,8 @@ const Presale = ({
               <button
                 className={`nav-link flex items-center space-x-2 p-3 text-white ${
                   selectedPaymentMode === index
-                    ? "bg-purple-700"
-                    : "hover:bg-purple-600"
+                    ? "bg-purple-500"
+                    : "bg-purple-800"
                 }`}
                 onClick={() => setSelectedPaymentMode(index)}
               >
@@ -479,7 +480,14 @@ const Presale = ({
           <div className="statTop flex justify-between items-center border-b border-gray-600 pb-3">
             <p className="text-sm md:text-base">Your Referral Rewards</p>
             <p className="text-sm md:text-base">
-              {userWIDTokens ? userWIDTokens.referralTokens : "---"} $WID
+              {userWIDTokens
+                ? Number(userWIDTokens.referralTokens) +
+                  " $WID ($" +
+                  (
+                    userWIDTokens.referralTokens * data.stageDetails.tokenPrice
+                  ).toString() +
+                  ")"
+                : "---"}{" "}
             </p>
           </div>
           <div className="statBottom flex justify-between items-center py-3">

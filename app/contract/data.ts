@@ -2,61 +2,26 @@ const presale_address: string = "0xFaCaf1c2808b099c8031903Ce39f113Dff3C15d6";
 // const presale_address: string = "0x833f590b398F6D00eFb79Db4B4c53f5E09A0A918";
 const presale_abi: any = [
   {
-    inputs: [],
-    name: "acceptOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
-      {
-        internalType: "uint256",
-        name: "subscriptionId",
-        type: "uint256",
-      },
+      { internalType: "uint256", name: "subscriptionId", type: "uint256" },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
   },
-  {
-    inputs: [],
-    name: "InvalidWinner",
-    type: "error",
-  },
+  { inputs: [], name: "InvalidWinner", type: "error" },
   {
     inputs: [
-      {
-        internalType: "address",
-        name: "have",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "want",
-        type: "address",
-      },
+      { internalType: "address", name: "have", type: "address" },
+      { internalType: "address", name: "want", type: "address" },
     ],
     name: "OnlyCoordinatorCanFulfill",
     type: "error",
   },
   {
     inputs: [
-      {
-        internalType: "address",
-        name: "have",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "coordinator",
-        type: "address",
-      },
+      { internalType: "address", name: "have", type: "address" },
+      { internalType: "address", name: "owner", type: "address" },
+      { internalType: "address", name: "coordinator", type: "address" },
     ],
     name: "OnlyOwnerOrCoordinator",
     type: "error",
@@ -66,26 +31,10 @@ const presale_abi: any = [
     name: "PurchaseAmountShouldNotBeGreaterThanStageSupply",
     type: "error",
   },
-  {
-    inputs: [],
-    name: "ReentrancyGuardReentrantCall",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "Unauthorized",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "WinningPoolClaimedAlready",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ZeroAddress",
-    type: "error",
-  },
+  { inputs: [], name: "ReentrancyGuardReentrantCall", type: "error" },
+  { inputs: [], name: "Unauthorized", type: "error" },
+  { inputs: [], name: "WinningPoolClaimedAlready", type: "error" },
+  { inputs: [], name: "ZeroAddress", type: "error" },
   {
     anonymous: false,
     inputs: [
@@ -119,29 +68,6 @@ const presale_abi: any = [
     type: "event",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
-        internalType: "enum PaymentMethod",
-        name: "mode",
-        type: "uint8",
-      },
-      {
-        internalType: "address",
-        name: "refferal",
-        type: "address",
-      },
-    ],
-    name: "buyToken",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     anonymous: false,
     inputs: [
       {
@@ -158,33 +84,13 @@ const presale_abi: any = [
       },
       {
         indexed: false,
-        internalType: "enum PaymentMethod",
+        internalType: "enum Presale.PaymentMethod",
         name: "paymentMethod",
         type: "uint8",
       },
     ],
     name: "BuyToken",
     type: "event",
-  },
-  {
-    inputs: [],
-    name: "claimTokens",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint8",
-        name: "stageNumber",
-        type: "uint8",
-      },
-    ],
-    name: "claimWinnerPool",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
   },
   {
     anonymous: false,
@@ -198,33 +104,6 @@ const presale_abi: any = [
     ],
     name: "CoordinatorSet",
     type: "event",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "endTime",
-        type: "uint256",
-      },
-    ],
-    name: "enableAirdrop",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "enableTrading",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "endPresale",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
   },
   {
     anonymous: false,
@@ -254,18 +133,8 @@ const presale_abi: any = [
   {
     anonymous: false,
     inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
+      { indexed: true, internalType: "address", name: "from", type: "address" },
+      { indexed: true, internalType: "address", name: "to", type: "address" },
     ],
     name: "OwnershipTransferRequested",
     type: "event",
@@ -273,46 +142,11 @@ const presale_abi: any = [
   {
     anonymous: false,
     inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
+      { indexed: true, internalType: "address", name: "from", type: "address" },
+      { indexed: true, internalType: "address", name: "to", type: "address" },
     ],
     name: "OwnershipTransferred",
     type: "event",
-  },
-  {
-    inputs: [],
-    name: "pausePresale",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "requestId",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256[]",
-        name: "randomWords",
-        type: "uint256[]",
-      },
-    ],
-    name: "rawFulfillRandomWords",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
   },
   {
     anonymous: false,
@@ -353,19 +187,6 @@ const presale_abi: any = [
     type: "event",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_vrfCoordinator",
-        type: "address",
-      },
-    ],
-    name: "setCoordinator",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     anonymous: false,
     inputs: [
       {
@@ -377,19 +198,6 @@ const presale_abi: any = [
     ],
     name: "TradingEnabled",
     type: "event",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-    ],
-    name: "transferOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
   },
   {
     anonymous: false,
@@ -417,19 +225,8 @@ const presale_abi: any = [
     type: "event",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
-        internalType: "enum PaymentMethod",
-        name: "mode",
-        type: "uint8",
-      },
-    ],
-    name: "withdrawAdminFunds",
+    inputs: [],
+    name: "acceptOwnership",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -437,121 +234,113 @@ const presale_abi: any = [
   {
     inputs: [],
     name: "airdropEndTime",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
+      { internalType: "uint256", name: "amount", type: "uint256" },
       {
-        internalType: "uint256",
-        name: "token_amount",
-        type: "uint256",
+        internalType: "enum Presale.PaymentMethod",
+        name: "mode",
+        type: "uint8",
       },
+      { internalType: "address", name: "refferal", type: "address" },
+    ],
+    name: "buyToken",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "uint256", name: "token_amount", type: "uint256" },
       {
-        internalType: "enum PaymentMethod",
+        internalType: "enum Presale.PaymentMethod",
         name: "mode",
         type: "uint8",
       },
     ],
     name: "calculateTotalTokensCost",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
+    name: "claimTokens",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint8", name: "stageNumber", type: "uint8" }],
+    name: "claimWinnerPool",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "currentStage",
-    outputs: [
-      {
-        internalType: "uint8",
-        name: "",
-        type: "uint8",
-      },
-    ],
+    outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint256", name: "endTime", type: "uint256" }],
+    name: "enableAirdrop",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "enableTrading",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "endPresale",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
     inputs: [
       {
-        internalType: "enum PaymentMethod",
+        internalType: "enum Presale.PaymentMethod",
         name: "mode",
         type: "uint8",
       },
     ],
     name: "getLatestPrice",
-    outputs: [
-      {
-        internalType: "int256",
-        name: "",
-        type: "int256",
-      },
-    ],
+    outputs: [{ internalType: "int256", name: "", type: "int256" }],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint8",
-        name: "stageNumber",
-        type: "uint8",
-      },
-    ],
+    inputs: [{ internalType: "uint8", name: "stageNumber", type: "uint8" }],
     name: "getStageSpecs",
     outputs: [
       {
         components: [
-          {
-            internalType: "uint8",
-            name: "stageNumber",
-            type: "uint8",
-          },
-          {
-            internalType: "uint256",
-            name: "stageSupply",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "supplySold",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "tokenPrice",
-            type: "uint256",
-          },
+          { internalType: "uint8", name: "stageNumber", type: "uint8" },
+          { internalType: "uint256", name: "stageSupply", type: "uint256" },
+          { internalType: "uint256", name: "supplySold", type: "uint256" },
+          { internalType: "uint256", name: "tokenPrice", type: "uint256" },
           {
             internalType: "uint256",
             name: "minParticipationUSDT",
             type: "uint256",
           },
-          {
-            internalType: "uint256",
-            name: "winningPool",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "winner",
-            type: "address",
-          },
+          { internalType: "uint256", name: "winningPool", type: "uint256" },
+          { internalType: "address", name: "winner", type: "address" },
         ],
-        internalType: "struct Stage",
+        internalType: "struct Presale.Stage",
         name: "",
         type: "tuple",
       },
@@ -560,124 +349,75 @@ const presale_abi: any = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-    ],
+    inputs: [{ internalType: "address", name: "user", type: "address" }],
     name: "hasClaimedPresaleTokens",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "isAirdropOpen",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "isTradingEnabled",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "keyHash",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
+    outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "owner",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-    ],
-    name: "purchasedTokens",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
+    outputs: [{ internalType: "address", name: "", type: "address" }],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
-    name: "refferalPercentage",
-    outputs: [
-      {
-        internalType: "uint8",
-        name: "",
-        type: "uint8",
-      },
-    ],
+    name: "pausePresale",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "user", type: "address" }],
+    name: "purchasedTokens",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
+      { internalType: "uint256", name: "requestId", type: "uint256" },
+      { internalType: "uint256[]", name: "randomWords", type: "uint256[]" },
     ],
+    name: "rawFulfillRandomWords",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "refferalPercentage",
+    outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "user", type: "address" }],
     name: "refferalTokens",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
@@ -696,68 +436,67 @@ const presale_abi: any = [
   },
   {
     inputs: [
-      {
-        internalType: "uint8",
-        name: "stageNumber",
-        type: "uint8",
-      },
-      {
-        internalType: "address",
-        name: "winner",
-        type: "address",
-      },
+      { internalType: "address", name: "_vrfCoordinator", type: "address" },
+    ],
+    name: "setCoordinator",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "uint8", name: "stageNumber", type: "uint8" },
+      { internalType: "address", name: "winner", type: "address" },
     ],
     name: "stageToPoolClaimedByWinner",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "totalEligibleUsersForWinningPool",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "totalStages",
-    outputs: [
-      {
-        internalType: "uint8",
-        name: "",
-        type: "uint8",
-      },
-    ],
+    outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "to", type: "address" }],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
     inputs: [],
     name: "usdtTokenAddress",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
+    outputs: [{ internalType: "address", name: "", type: "address" }],
     stateMutability: "view",
     type: "function",
   },
+  {
+    inputs: [
+      { internalType: "uint256", name: "amount", type: "uint256" },
+      {
+        internalType: "enum Presale.PaymentMethod",
+        name: "mode",
+        type: "uint8",
+      },
+    ],
+    name: "withdrawAdminFunds",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ];
+
 const widcoin_address: string = "0xb6CFc7b7aC28aad46773a9B1605e5992C61d8aDa";
 // const widcoin_address: string = "0xb6CFc7b7aC28aad46773a9B1605e5992C61d8aDa";
 const erc20_abi: any = [
